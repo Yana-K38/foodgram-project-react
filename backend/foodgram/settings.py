@@ -25,12 +25,15 @@ SECRET_KEY = 'i1qcpc-(p&tycmvv$rw=q2zvug%(nzbqlp8z_&vb^*5%)y7d_j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'api.apps.ApiConfig',
+    'recipe.apps.RecipeConfig',
+    #'user.apps.UserConfig'
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
