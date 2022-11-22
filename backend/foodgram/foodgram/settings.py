@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'recipe.apps.RecipeConfig',
+    'user.apps.UserConfig',
     'rest_framework',
 ]
 
@@ -51,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'user.User'
 
 ROOT_URLCONF = 'foodgram.urls'
 
