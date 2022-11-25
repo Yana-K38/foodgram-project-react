@@ -1,8 +1,14 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import viewsets
-from recipe.models import Tag, Ingredient, Recipe #, AmountIngredient
-from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer #, AmountIngredientSerializer
+from recipe.models import Tag, Ingredient, Recipe
+from user.models import UserProfile
+from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, UserProfileSerializer
+
+class UserProfileViewSet(ReadOnlyModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+
 
 class RecipeViewSet(ReadOnlyModelViewSet):
     queryset = Recipe.objects.all()
@@ -31,6 +37,3 @@ class IngredientViewSet(ReadOnlyModelViewSet):
             queryset = stw
         return queryset
 
-# class AmountViewSet(ReadOnlyModelViewSet):
-#     queryset = AmountIngredient.objects.all()
-#     serializer_class = AmountIngredientSerializer

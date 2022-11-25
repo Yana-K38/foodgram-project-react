@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
-class User(AbstractUser):
+class UserProfile(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
         validators=[UnicodeUsernameValidator()],
@@ -33,9 +33,9 @@ class User(AbstractUser):
 class Follow(models.Model):
 
     following = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='following')
+        UserProfile, on_delete=models.CASCADE, related_name='following')
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='follower')
+        UserProfile, on_delete=models.CASCADE, related_name='follower')
 
     class Meta:
         constraints = [
@@ -44,3 +44,6 @@ class Follow(models.Model):
                 name='unique_name_follow'
             )
         ]
+    
+    def __str__(self):
+        return f"{self.user} follows {self.following}"

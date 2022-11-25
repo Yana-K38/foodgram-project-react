@@ -3,16 +3,33 @@ from drf_extra_fields.fields import Base64ImageField
 from django.db.models import F
 
 from recipe.models import AmountIngredient, Ingredient, Recipe, Tag
-from user.models import User
+from user.models import UserProfile, Follow
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователя."""
+    is_subscribed = serializers.SerializerMethodField()
     class Meta:
-        model = User
-        fields = '__all__'
+        model = UserProfile
+        fields = (
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+        )
+
+    def get_is_subscribed(self, obj):
+        """Проверяет подписки пользователя."""
+        user = self.context.get('request').user
+        if user.is_anonymous or (user == obj):
+            return False
+        return Follow.objects.filter(user=user, following=obj).exists()
+
+    
+
 
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор для тэгов."""
@@ -30,7 +47,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов."""
-   # author = 
+    author = UserProfileSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
@@ -56,7 +73,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         return bool(
             self.context.get('request').query_params.get('is_in_shopping_cart')
         )
-
+    def create(self, validated_data):
+        return Recipe(**validated_data)
+        
     def update(self, recipe, validated_data):
         tags = validated_data.get('tags')
         ingredients = validated_data.get('ingredients')
