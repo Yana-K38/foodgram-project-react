@@ -61,7 +61,10 @@ class AmountIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         default=0,
-        validators=[MinValueValidator(1)]
+        validators=[MinValueValidator(
+            1, 'Минимальное значение 1'
+        )
+        ]
     )
     
     class Meta:
@@ -110,6 +113,12 @@ class Recipe(models.Model):
         auto_now_add=True,
         verbose_name='Дата публикации',
     )
+    favorite = models.ManyToManyField(
+        User,
+        verbose_name='Понравившийся рецепт',
+        related_name='favorites',
+    )
+
 
     class Meta:
         ordering = ['-pub_date']

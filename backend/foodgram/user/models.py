@@ -26,9 +26,14 @@ class UserProfile(AbstractUser):
         verbose_name='Введите вашу фамилию',
         max_length=150,
     )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username',)
     
-    def __str__(self) -> str:
-        return f"{self.username}"
+    def __str__(self):
+        return f'{self.username}: {self.email}'
 
 class Follow(models.Model):
 
@@ -38,6 +43,8 @@ class Follow(models.Model):
         UserProfile, on_delete=models.CASCADE, related_name='follower')
 
     class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
@@ -46,4 +53,4 @@ class Follow(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.user} follows {self.following}"
+        return f'{self.user} follows {self.following}'

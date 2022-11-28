@@ -18,8 +18,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'password',
             'is_subscribed',
         )
+        extra_kwargs = {'password': {'write_only': True}}
+        read_only_fields = 'is_subscribed',
 
     def get_is_subscribed(self, obj):
         """Проверяет подписки пользователя."""
@@ -73,6 +76,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return bool(
             self.context.get('request').query_params.get('is_in_shopping_cart')
         )
+
     def create(self, validated_data):
         return Recipe(**validated_data)
         
