@@ -7,10 +7,10 @@ router = routers.DefaultRouter()
 router.register('recipe', RecipeViewSet, basename = 'recipe')
 router.register('tags', TagViewSet, basename = 'tag')
 router.register('ingredients', IngredientViewSet, basename = 'Ingredient')
-router.register('user', UserProfileViewSet, basename = 'user')
+router.register('users', UserProfileViewSet, basename = 'users')
 
 urlpatterns = (
     path('', include(router.urls)),
     path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls.authtoken')),
 )

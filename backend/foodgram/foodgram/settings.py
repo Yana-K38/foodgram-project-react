@@ -37,12 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'api.apps.ApiConfig',
     'recipe.apps.RecipeConfig',
     'user.apps.UserConfig',
-    'djoser',
-    'rest_framework',
-    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -75,15 +75,36 @@ TEMPLATES = [
     },
 ]
 
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'PERMISSIONS': {
+        'resipe': ('api.permissions.AuthorOrStaffOrReadOnly,',),
+        'recipe_list': ('api.permissions.AuthorOrStaffOrReadOnly',),
+        'user': ('api.permissions.AuthorOrStaffOrReadOnly',),
+        'user_list': ('api.permissions.AuthorOrStaffOrReadOnly',),
+    },
+    'SERIALIZERS': {
+        'user': 'api.serializers.UserProfileSerializer',
+        'user_list': 'api.serializers.UserProfileSerializer',
+        'current_user': 'api.serializers.UserProfileSerializer',
+        'user_create': 'api.serializers.UserProfileSerializer',
+    },
+}
+
+
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
-
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ]
 }
 
 # Database
@@ -115,6 +136,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+#     'HIDE_USERS': False,
+#     'PERMISSIONS': {
+#         'resipe': ('api.permissions.AuthorStaffOrReadOnly,',),
+#         'recipe_list': ('api.permissions.AuthorStaffOrReadOnly',),
+#         'user': ('api.permissions.OwnerUserOrReadOnly',),
+#         'user_list': ('api.permissions.OwnerUserOrReadOnly',),
+#     },
+#     'SERIALIZERS': {
+#         'user': 'api.serializers.UserSerializer',
+#         'user_list': 'api.serializers.UserSerializer',
+#         'current_user': 'api.serializers.UserSerializer',
+#         'user_create': 'api.serializers.UserSerializer',
+#     },
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
