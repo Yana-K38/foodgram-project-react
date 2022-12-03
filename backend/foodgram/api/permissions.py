@@ -1,25 +1,18 @@
 from rest_framework import permissions
 
-class AdminOrReadOnly(permissions.BasePermission):
-    """Разрешение на создание и редактирование только для администратора.
-    Для остальных только чтение.
+
+class AdminOrAuthor(permissions.BasePermission):
+    """Разрешение на изменение только для админа и автора.
     """
     message = 'У вас недостаточно прав для выполнения данного действия.'
-    
+
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
-                or (request.user.is_authenticated
-                    and request.user.is_admin))
+                or request.user.is_authenticated)
 
-class AuthorOrStaffOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
-    """Разрешение на изменение только для админа и автора.
-    Остальным только чтение.
-    """
     def has_object_permission(self, request, view, obj):
         return (
             request.method in permissions.SAFE_METHODS
             or (request.user == obj.author)
-            or request.user.is_staff
+            or request.user.is_superuser
         )
-
-

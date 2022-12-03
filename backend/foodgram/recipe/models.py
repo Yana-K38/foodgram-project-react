@@ -1,8 +1,9 @@
-from django.db import models
-from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+from django.db import models
 
 User = get_user_model()
+
 
 class Tag(models.Model):
     """Теги для рецептов."""
@@ -27,6 +28,7 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+
 class Ingredient(models.Model):
     """Ингредиенты для рецепта."""
     name = models.CharField(
@@ -41,6 +43,7 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class AmountIngredient(models.Model):
     """Модель связывает Recipe и Ingredient
@@ -61,12 +64,9 @@ class AmountIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         default=0,
-        validators=[MinValueValidator(
-            1, 'Минимальное значение 1'
-        )
-        ]
+        validators=[MinValueValidator(1)]
     )
-    
+
     class Meta:
         ordering = ['recipe']
 
@@ -84,26 +84,28 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        verbose_name='Название рецепта'
+        verbose_name='Название рецепта',
+        unique=True,
     )
     image = models.ImageField(
-        verbose_name='Изображение блюда',
+        verbose_name='Фотография готового блюда',
         upload_to='recipe_img/',
-        help_text='Загрузите изображение'
+        help_text='Загрузите фотографию'
     )
     text = models.TextField(
-        verbose_name='Рецепт',
-        help_text='Напишите рецепт',
+        verbose_name='Описание рецепта',
+        help_text='Описание рецепта',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        verbose_name= 'Ингредиенты',
+        verbose_name='Ингредиенты',
         related_name='recipe',
         through='AmountIngredient',
     )
     tags = models.ManyToManyField(
         Tag,
         related_name='recipe',
+        help_text='Выберите тег',
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
@@ -113,16 +115,61 @@ class Recipe(models.Model):
         auto_now_add=True,
         verbose_name='Дата публикации',
     )
-    favorite = models.ManyToManyField(
-        User,
-        verbose_name='Понравившийся рецепт',
-        related_name='favorites',
-    )
-
 
     class Meta:
         ordering = ['-pub_date']
 
     def __str__(self):
         return self.name
-    
+
+
+class FavoriteRecipe(models.Model):
+    """Модель избранных рецептов."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Пользователь')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='in_favorite',
+        verbose_name='Понравившийся рецепт',
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_favorite_recipe',
+            ),
+        )
+
+    def __str__(self):
+        return f'Рецепт {self.recipe} в избранном у {self.user}'
+
+
+class ShoppingList(models.Model):
+    """Модель список покупок."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='in_shopping_list',
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_shopping_list_recipe',
+            ),
+        )
+
+    def __str__(self):
+        return f'Рецепт {self.recipe} в списке покупок у {self.user}'
