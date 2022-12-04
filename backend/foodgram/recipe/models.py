@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from colorfield.fields import ColorField
+from django.template.defaultfilters import slugify
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -12,11 +15,12 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Тег'
     )
-    color = models.CharField(
-        max_length=7,
-        default='FF',
+    color = ColorField(
+        max_length=10,
+        default='FF0000',
         null=True,
         verbose_name='HEX-код',
+        format="hexa",
     )
     slug = models.SlugField(
         max_length=200,
@@ -27,6 +31,14 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('article_detail', kwargs={'slug': self.slug})
+    
+    def save(self):
+        if not self.slug:
+            self.slug=slugify(self.name)
+        return super(Tag, self).save()
 
 
 class Ingredient(models.Model):
@@ -64,7 +76,10 @@ class AmountIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         default=0,
-        validators=[MinValueValidator(1)]
+        validators=(
+            MinValueValidator(
+                1, 'Количество ингредиента не может быть меньше 1'
+                ),),
     )
 
     class Meta:
@@ -109,7 +124,9 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        validators=[MinValueValidator(1)]
+        validators=(MinValueValidator(
+            1, 'Время приготовления рецепта не может быть меньше 1 минуты'
+            ),),
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,

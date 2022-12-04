@@ -8,6 +8,7 @@ from recipe.models import (AmountIngredient, FavoriteRecipe, Ingredient,
                            Recipe, ShoppingList, Tag)
 from rest_framework import serializers
 from user.models import Follow
+from django.db import transaction
 
 User = get_user_model()
 
@@ -22,7 +23,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
-        read_only_fields = '__all__',
+        read_only_fields = '__all__'
 
 
 class UserSerializer(UserSerializer):
@@ -85,7 +86,6 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = '__all__',
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -93,7 +93,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
-        read_only_fields = '__all__',
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -155,21 +154,25 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             'id', 'name', 'measurement_unit', amount=F('recipe_am__amount')
         )
         return ingredients
-
+    
+    @transaction.atomic
     def create(self, validated_data):
         author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=author, **validated_data)
         recipe.tags.set(tags)
+        all_ingredients = []
         for ingredient in ingredients:
-            AmountIngredient.objects.create(
+            all_ingredients.append(AmountIngredient(
                 recipe=recipe,
                 ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
                 amount=ingredient['amount']
-            )
+            ))
+            AmountIngredient.objects.bulk_create(all_ingredients)
         return recipe
-
+    
+    @transaction.atomic
     def update(self, recipe, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')

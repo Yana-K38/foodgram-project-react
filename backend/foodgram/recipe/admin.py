@@ -34,6 +34,7 @@ class TagAdmin(admin.ModelAdmin):
         'name', 'color'
     )
     empty_value_display = '-пусто-'
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(AmountIngredient)

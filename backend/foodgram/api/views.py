@@ -210,6 +210,8 @@ class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrAuthor,)
+    pagination_class = None
+    http_method_names = ['get']
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -217,6 +219,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrAuthor,)
+    pagination_class = None
+    http_method_names = ['get']
 
     def get_queryset(self):
         """Реализован поиск объектов по совпадению в начале названия,
