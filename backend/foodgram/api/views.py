@@ -4,17 +4,19 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+
+from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from user.models import Follow
 
+from .filters import CustomIngredientsSearchFilter
 from .pagination import CustomPageNumberPagination
-from .permissions import AdminOrAuthor
+from .permissions import AdminOrAuthor, AdminOrReadOnly
 from .serializers import (AmountIngredient, CreateUpdateRecipeSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeSerializer, TagSerializer)
@@ -209,7 +211,7 @@ class TagViewSet(ReadOnlyModelViewSet):
     """Для работы с тегами."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (AdminOrAuthor,)
+    permission_classes = (AdminOrReadOnly,)
     pagination_class = None
     http_method_names = ['get']
 
@@ -218,22 +220,24 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     """Для работы с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AdminOrAuthor,)
+    permission_classes = (AdminOrReadOnly,)
     pagination_class = None
+    filter_backends = (CustomIngredientsSearchFilter,)
+    search_fields = ('^name', 'name')
     http_method_names = ['get']
 
-    def get_queryset(self):
-        """Реализован поиск объектов по совпадению в начале названия,
-        также добавляются результаты по совпадению в середине.
-        """
-        name = self.request.query_params.get('name')
-        queryset = self.queryset
-        if name:
-            name = name.lower()
-            stw = list(queryset.filter(name__startswith=name))
-            cnt = queryset.filter(name__contains=name)
-            stw.extend(
-                [val for val in cnt if val not in stw]
-            )
-            queryset = stw
-        return queryset
+    # def get_queryset(self):
+    #     """Реализован поиск объектов по совпадению в начале названия,
+    #     также добавляются результаты по совпадению в середине.
+    #     """
+    #     name = self.request.query_params.get('name')
+    #     queryset = self.queryset
+    #     if name:
+    #         name = name.lower()
+    #         stw = list(queryset.filter(name__startswith=name))
+    #         cnt = queryset.filter(name__contains=name)
+    #         stw.extend(
+    #             [val for val in cnt if val not in stw]
+    #         )
+    #         queryset = stw
+    #     return queryset

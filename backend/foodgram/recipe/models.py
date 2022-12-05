@@ -1,7 +1,7 @@
+from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from colorfield.fields import ColorField
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 
@@ -34,10 +34,10 @@ class Tag(models.Model):
 
     def get_absolute_url(self):
         return reverse('article_detail', kwargs={'slug': self.slug})
-    
+
     def save(self):
         if not self.slug:
-            self.slug=slugify(self.name)
+            self.slug = slugify(self.name)
         return super(Tag, self).save()
 
 
