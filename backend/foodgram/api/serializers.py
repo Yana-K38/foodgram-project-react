@@ -170,7 +170,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
                 ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
                 amount=ingredient['amount']
             ))
-            AmountIngredient.objects.bulk_create(all_ingredients)
+        AmountIngredient.objects.bulk_create(all_ingredients)
         return recipe
 
     @transaction.atomic

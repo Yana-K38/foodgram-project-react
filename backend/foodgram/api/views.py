@@ -35,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),
         serializer_class=FollowSerializer
     )
-    def subscriptions(self, request):
+    def subscriptions(self, request):  
         user = self.request.user
         if user.is_anonymous:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -225,19 +225,3 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     filter_backends = (CustomIngredientsSearchFilter,)
     search_fields = ('^name', 'name')
     http_method_names = ['get']
-
-    # def get_queryset(self):
-    #     """Реализован поиск объектов по совпадению в начале названия,
-    #     также добавляются результаты по совпадению в середине.
-    #     """
-    #     name = self.request.query_params.get('name')
-    #     queryset = self.queryset
-    #     if name:
-    #         name = name.lower()
-    #         stw = list(queryset.filter(name__startswith=name))
-    #         cnt = queryset.filter(name__contains=name)
-    #         stw.extend(
-    #             [val for val in cnt if val not in stw]
-    #         )
-    #         queryset = stw
-    #     return queryset
