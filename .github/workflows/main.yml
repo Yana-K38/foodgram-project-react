@@ -52,6 +52,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
+          cd foodgram-project-react/infra
           sudo docker-compose stop
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
