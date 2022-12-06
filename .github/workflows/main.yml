@@ -41,3 +41,5 @@ jobs:
           push: true
           context: ./backend/foodgram/
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram-project:latest
+
+
