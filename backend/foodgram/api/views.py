@@ -35,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),
         serializer_class=FollowSerializer
     )
-    def subscriptions(self, request):  
+    def subscriptions(self, request):
         user = self.request.user
         if user.is_anonymous:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -130,9 +130,9 @@ class RecipeViewSet(ModelViewSet):
                 FavoriteRecipe, user=user, recipe=recipe)
             favorite.delete()
             return Response(
-                    'Рецепт удалён из избранного',
-                    status=status.HTTP_204_NO_CONTENT
-                )
+                'Рецепт удалён из избранного',
+                status=status.HTTP_204_NO_CONTENT
+            )
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
@@ -167,8 +167,8 @@ class RecipeViewSet(ModelViewSet):
             )
             shopping_list.delete()
             return Response(
-                    'Рецепт удалён из списка покупок',
-                    status=status.HTTP_204_NO_CONTENT
+                'Рецепт удалён из списка покупок',
+                status=status.HTTP_204_NO_CONTENT
             )
 
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
