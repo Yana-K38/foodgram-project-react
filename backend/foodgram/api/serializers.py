@@ -24,7 +24,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
-        read_only_fields = '__all__'
+        read_only_fields = '__all__',
 
 
 class UserSerializer(UserSerializer):
@@ -69,7 +69,7 @@ class FollowSerializer(UserSerializer):
         model = User
         fields = (
             'id',
-            'username',
+            #'username',
             'first_name',
             'last_name',
             'email',
@@ -138,7 +138,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return ShoppingList.objects.filter(user=user, recipe=obj).exists()
 
-
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     """Создание и редактирование рецепта."""
     author = UserSerializer(read_only=True)
@@ -149,6 +148,10 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(validators=(MinValueValidator(1),))
+
+    class Meta:
+        model = Recipe
+        fields = '__all__'
 
     def get_ingredients(self, obj):
         ingredients = obj.ingredients.values(
@@ -175,8 +178,8 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, recipe, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags', None)
+        ingredients = validated_data.pop('ingredients', None)
         if ingredients:
             recipe.ingredients.clear()
             all_ingredients = []
