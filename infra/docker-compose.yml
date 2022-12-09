@@ -8,7 +8,7 @@ services:
       - ./.env
 
   backend:
-    image: yanak38/foodgram-project:latest
+    image: yanak38/backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -17,15 +17,14 @@ services:
       - db
     env_file:
       - ./.env
+
   
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: yanak38/frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - backend
+      - db
   
   nginx:
     image: nginx:1.19.3
@@ -38,7 +37,6 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - frontend
       - backend
 
 volumes:
