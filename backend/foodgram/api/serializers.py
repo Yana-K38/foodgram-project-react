@@ -220,9 +220,9 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             recipe.tags.set(tags)
         return super().update(recipe, validated_data)
 
-    def to_representation(self, instance):
-        serializers = RecipeSerializer(
-            instance,
+    def to_representation(self, recipe):
+        data = RecipeSerializer(
+            recipe,
             context={'request': self.context.get('request')}
-        )
-        return serializers.data
+        ).data
+        return data
