@@ -62,14 +62,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class FollowSerializer(UserSerializer):
-    recipes = ShortRecipeSerializer(many=True, read_only=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id',
-            #'username',
+            'username',
             'first_name',
             'last_name',
             'email',
@@ -77,6 +77,25 @@ class FollowSerializer(UserSerializer):
             'recipes',
             'recipes_count'
         )
+
+    def get_serializer_class(self):
+        return ShortRecipeSerializer
+
+    def get_recipes(self, obj):
+        author = Recipe.objects.filter(author=obj)
+        if 'recipes_limit' in self.context.get('request').GET:
+            recipes_limit = self.context.get('request').GET['recipes_limit']
+            author = author[:int(recipes_limit)]
+
+        if author:
+            serializer = self.get_serializer_class()(
+                author,
+                context={'request': self.context.get('request')},
+                many=True
+            )
+            return serializer.data
+
+        return []
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
@@ -138,6 +157,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return ShoppingList.objects.filter(user=user, recipe=obj).exists()
 
+
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     """Создание и редактирование рецепта."""
     author = UserSerializer(read_only=True)
@@ -145,7 +165,11 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         many=True
     )
-    ingredients = serializers.SerializerMethodField()
+    ingredients = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.IntegerField(min_value=0)
+        )
+    )
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(validators=(MinValueValidator(1),))
 
@@ -155,8 +179,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, obj):
         ingredients = obj.ingredients.values(
-            'id', 'name', 'measurement_unit', amount=F('recipe_am__amount')
-        )
+            'id', 'name', 'measurement_unit', amount=F('recipe_am__amount'))
         return ingredients
 
     @transaction.atomic
@@ -170,7 +193,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             all_ingredients.append(AmountIngredient(
                 recipe=recipe,
-                ingredient=get_object_or_404(Ingredient, pk=ingredient['id']),
+                ingredients=get_object_or_404(Ingredient, pk=ingredient['id']),
                 amount=ingredient['amount']
             ))
         AmountIngredient.objects.bulk_create(all_ingredients)
@@ -182,15 +205,13 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients', None)
         if ingredients:
             recipe.ingredients.clear()
-            all_ingredients = []
-            for ingredient in ingredients:
-                all_ingredients.append(
-                    AmountIngredient, recipe=recipe,
-                    ingredient=get_object_or_404(
-                        Ingredient, id=ingredient['id']
-                    ),
-                    defaults={'amount': ingredient['amount']}
+            all_ingredients = [
+                AmountIngredient(
+                    recipe=recipe,
+                    ingredients=get_object_or_404(Ingredient, id=ingredient['id'])
                 )
+                for ingredient in ingredients
+            ]
             AmountIngredient.objects.bulk_create(all_ingredients)
         if tags:
             recipe.tags.clear()

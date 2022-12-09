@@ -1,6 +1,7 @@
 from datetime import datetime as dt
+
 from django.contrib.auth import get_user_model
-from django.db.models import F, Sum
+from django.db.models import Sum
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,19 +10,18 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.pagination import PageNumberPagination
 
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from user.models import Follow
 
-from .filters import CustomIngredientsSearchFilter
+from .filters import CustomIngredientsSearchFilter, RecipeFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import AdminOrAuthor, AdminOrReadOnly
 from .serializers import (AmountIngredient, CreateUpdateRecipeSerializer,
                           FollowSerializer, IngredientSerializer,
-                          RecipeSerializer, TagSerializer, ShortRecipeSerializer)
+                          RecipeSerializer, ShortRecipeSerializer,
+                          TagSerializer)
 
 User = get_user_model()
 
@@ -29,7 +29,7 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPagination
-    serializer_class=FollowSerializer
+    serializer_class = FollowSerializer
 
     @action(
         detail=False,
@@ -37,46 +37,14 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
-       pass
-        # current_user = request.user
-        # queryset = get_object_or_404(Follow, user=current_user)
-        # queryset = self.filter_queryset(queryset)
-        # page = self.paginate_queryset(queryset)
-        # if page is not None:
-        #     serializer = self.get_serializer(page, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        user = self.request.user
+        user_subscription = user.follower.all()
+        author = [follower.author.id for follower in user_subscription]
+        queryset = User.objects.filter(pk__in=author)
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(paginated_queryset, many=True)
 
-        # serializer = self.get_serializer(queryset, many=True)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # user = self.request.user
-        # if user.is_anonymous:
-        #     return Response(status=status.HTTP_401_UNAUTHORIZED)
-        # user_follower = user.follower.all()
-        # for follower in user_follower:
-        #     author = follower.author.id
-        # queryset = User.objects.filter(
-        #     pk__in=author
-        # )
-        # serializer = self.get_serializer(
-        #     self.paginate_queryset(queryset), many=True
-        # )
-        # return self.get_paginated_response(serializer.data)
-
-        # queryset = self.get_queryset().filter(
-        #     following__user=request.user
-        # ).order_by('pk')
-        # page = self.paginate_queryset(queryset)
-        # if page is not None:
-        #     serializer = FollowSerializer(
-        #         page, many=True, context={'request': request}
-        #     )
-        #     return self.get_paginated_response(serializer.data)
-        # serializer = FollowSerializer(
-        #     queryset, many=True, context={'request': request}
-        # )
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-        
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=False,
@@ -101,7 +69,8 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'DELETE':
             if not Follow.objects.filter(
-                author=author, user=user
+                author=author,
+                user=user
             ).exists():
                 message = {'Вы не подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
@@ -110,6 +79,7 @@ class CustomUserViewSet(UserViewSet):
             )
             subscription.delete()
             return Response("Вы отписались", status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class RecipeViewSet(ModelViewSet):
@@ -119,6 +89,7 @@ class RecipeViewSet(ModelViewSet):
     permission_classes = (AdminOrAuthor,)
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -222,7 +193,7 @@ class RecipeViewSet(ModelViewSet):
             )
             position_amount = ingredient['amount']
             shopping_cart_file += (
-                f' {position_ingredient.name.title()}'
+                f' {position_ingredient.name.title()},'
                 f' {position_ingredient.measurement_unit}'
                 f' - {position_amount}' + '\n'
             )
@@ -234,6 +205,7 @@ class RecipeViewSet(ModelViewSet):
             'attachment; filename="%s"' % 'shopping_list.txt'
         )
         return response
+
 
 class TagViewSet(ReadOnlyModelViewSet):
     """Для работы с тегами."""

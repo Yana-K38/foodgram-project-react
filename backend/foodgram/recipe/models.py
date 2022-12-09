@@ -105,7 +105,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Фотография готового блюда',
-        upload_to='recipe_img/',
+        upload_to='recipe/image',
         help_text='Загрузите фотографию'
     )
     text = models.TextField(
@@ -153,7 +153,7 @@ class FavoriteRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='in_favorite',
+        related_name='favorite_in',
         verbose_name='Понравившийся рецепт',
     )
 

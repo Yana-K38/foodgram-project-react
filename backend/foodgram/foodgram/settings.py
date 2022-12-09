@@ -17,7 +17,7 @@ SECRET_KEY = '&&y&sbgi=+9y5w2yebh@2ia03l@6krpj*o+kc9txcwiqmo^c=9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*'] 
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -46,11 +46,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
- ]
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
 ]
+
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:3000',
+# ]
 
 ROOT_URLCONF = 'foodgram.urls'
 
