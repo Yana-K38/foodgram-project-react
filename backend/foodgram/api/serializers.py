@@ -208,7 +208,9 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             all_ingredients = [
                 AmountIngredient(
                     recipe=recipe,
-                    ingredients=get_object_or_404(Ingredient, id=ingredient['id'])
+                    ingredients=get_object_or_404(
+                        Ingredient, id=ingredient['id']
+                    )
                 )
                 for ingredient in ingredients
             ]
