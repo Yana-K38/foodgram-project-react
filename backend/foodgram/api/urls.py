@@ -12,7 +12,6 @@ router.register('ingredients', IngredientViewSet, basename='Ingredient')
 router.register('users', CustomUserViewSet, basename='subscriptions')
 
 
-
 urlpatterns = (
     path('', include(router.urls)),
     path('', include('djoser.urls')),
