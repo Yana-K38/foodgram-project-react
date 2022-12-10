@@ -41,7 +41,7 @@ class CustomUserViewSet(UserViewSet):
         user = self.request.user
         user_subscription = user.follower.all()
         author = [follower.author.id for follower in user_subscription]
-        queryset = User.objects.filter(pk__in=author)
+        queryset = User.objects.filter(pk__in=author).order_by('id')
         paginated_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(paginated_queryset, many=True)
 
@@ -50,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         methods=['post', 'delete'],
-        url_path="(?P<user_pk>[^/.])/subscribe",
+      #  url_path="(?P<user_pk>[^/.])/subscribe",
     )
     def subscribe(self, request, user_pk=None):
         user = self.request.user
