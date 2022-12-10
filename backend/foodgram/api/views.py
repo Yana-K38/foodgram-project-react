@@ -51,7 +51,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         methods=['post', 'delete'],
-        url_path="/(?P<user_id>[^/.])/subscribe/",
+        url_path="(?P<user_id>\d)/subscribe",
     )
     def subscribe(self, request, user_pk=None):
         user = self.request.user
