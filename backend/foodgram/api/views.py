@@ -36,6 +36,7 @@ class CustomUserViewSet(UserViewSet):
         detail=False,
         methods=['get'],
         permission_classes=(IsAuthenticated,),
+        url_path="/subscriptions/",
     )
     def subscriptions(self, request):
         user = self.request.user
