@@ -60,7 +60,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd foodgram-project-react/infra/
+          cd foodgram-project-react/infra
           sudo docker-compose stop
           sudo docker-compose rm -f backend frontend
           sudo docker imagee rm yanak38/frontend yanak38/backend
