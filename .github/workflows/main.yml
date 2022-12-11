@@ -56,12 +56,11 @@ jobs:
     - name: executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
-        context: ./infra
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd foodgram/infra/
+          cd foodgram/
           sudo docker-compose stop
           sudo docker-compose rm backend
           sudo docker pull yanak38/frontend
