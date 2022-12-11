@@ -34,13 +34,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push backend to Docker Hub
+          
+      - name: Push backend image to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
           context: ./backend/foodgram/
           tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
-      - name: Push frontend to Docker Hub
+          
+      - name: Push frontend image to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -58,9 +60,11 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          sudo docker pull yanak38/backend:latest
-          sudo docker pull yanak38/frontend:latest
-          sudo docker stop $(sudo docker ps -a -q)
+          cd /infra
+          sudo docker-compose stop
+          sudo docker-compose rm -f backend frontend
+          sudo docker imagee rm yanak38/frontend yanak38/backend
+          sudo docker-compose pull frontend backend
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
