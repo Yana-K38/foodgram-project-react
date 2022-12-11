@@ -61,7 +61,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd infra/
+          cd foodgram/infra/
           sudo docker-compose stop
           sudo docker-compose rm backend
           sudo docker pull yanak38/frontend
