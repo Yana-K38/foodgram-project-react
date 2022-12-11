@@ -71,7 +71,11 @@ jobs:
           sudo docker rm frontend
           sudo docker pull yanak38/frontend:latest
           sudo docker pull yanak38/backend:latest
+<<<<<<< HEAD
 >>>>>>> 8e1c920acc7470e258949c6b849042f738747850
+=======
+          rm .env
+>>>>>>> 58a67b2facdfff33b5424730f5e20ad4052c57a6
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
