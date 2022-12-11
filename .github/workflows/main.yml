@@ -60,7 +60,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd foodgram-project-react/infra
+          cd infra
           sudo docker-compose stop
           sudo docker-compose rm -f backend frontend
           sudo docker imagee rm yanak38/frontend yanak38/backend
@@ -72,8 +72,7 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          cd foodgram-project-react/infra
-          sudo docker-compose up -d
+              sudo docker-compose up -d
          # sudo docker run --rm -d  yanak38/foodgram-project:latest 
     
 
