@@ -64,8 +64,8 @@ jobs:
           sudo docker-compose stop
           sudo docker rm backend
           sudo docker rm frontend
-          sudo docker rmi yanak38/frontend:latest
-          sudo docker emi yanak38/backend:latest
+          sudo docker pull yanak38/frontend:latest
+          sudo docker pull yanak38/backend:latest
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
