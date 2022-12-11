@@ -52,8 +52,8 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          sudo docker-compose stop
-          sudo docker-compose rm -f backend frontend
+         # sudo docker-compose stop
+          #sudo docker-compose rm -f backend frontend
           sudo docker pull yanak38/infra_actions:latest
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -63,6 +63,6 @@ jobs:
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           sudo docker-compose up -d
-        #  sudo docker run --rm -d -p 8000:8000 yanak38/infra_actions:latest 
+          sudo docker run --rm -d -p 8000:8000 yanak38/infra_actions:latest 
     
 
