@@ -21,7 +21,7 @@ jobs:
         python -m flake8
         
   build_and_push_to_docker_hub:
-    name: Push Docker image to Docker Hub
+    name: Push Docker to Docker Hub
     runs-on: ubuntu-latest
     needs: tests
     steps:
@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Push backend image to Docker Hub
+      - name: Push backend to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -60,19 +60,16 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd infra/
           sudo docker-compose stop
           sudo docker-compose rm -f backend frontend
-          sudo docker imagee rm yanak38/frontend yanak38/backend
-          sudo docker-compose pull frontend backend
-          touch .env
+          sudo docker rmi yanak38/frontend yanak38/backend
+          ouch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-              sudo docker-compose up -d
-         # sudo docker run --rm -d  yanak38/foodgram-project:latest 
-    
+          sudo docker-compose up -d
+            
 
