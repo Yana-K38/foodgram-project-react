@@ -60,9 +60,6 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          sudo docker-compose stop
-          sudo docker-compose rm -f backend frontend
-          sudo docker pull yanak38/infra_actions:latest
           cd foodgram/
           sudo docker-compose stop
           sudo docker rm backend
