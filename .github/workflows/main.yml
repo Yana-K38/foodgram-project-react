@@ -61,9 +61,11 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
+          cd infra/
+          sudo docker-compose stop
+          sudo docker-compose rm backend
           sudo docker pull yanak38/frontend
           sudo docker pull yanak38/backend
-          sudo docker stop $(sudo docker ps -a -q)
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
