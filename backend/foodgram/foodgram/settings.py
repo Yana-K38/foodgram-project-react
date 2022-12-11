@@ -15,9 +15,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&&y&sbgi=+9y5w2yebh@2ia03l@6krpj*o+kc9txcwiqmo^c=9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['158.160.41.102', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -48,9 +48,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',
-# ]
+ CORS_ALLOWED_ORIGINS = [
+     'http://localhost:3000',
+]
 
 ROOT_URLCONF = 'foodgram.urls'
 
