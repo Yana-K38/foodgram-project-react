@@ -29,13 +29,14 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     permission_classes = (IsAuthenticated,)
-    pagination_class = CustomPageNumberPagination
+    pagination_class = PageNumberPagination
     serializer_class = FollowSerializer
 
     @action(
-        detail=False,
+        detail=True,
         methods=['get'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,),
+        serializer_class = FollowSerializer,
     )
     def subscriptions(self, request):
         user = self.request.user
@@ -48,12 +49,13 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,
-        methods=['post', 'delete']
+        detail=True,
+        methods=['post', 'delete'],
+        serializer_class = FollowSerializer
     )
-    def subscribe(self, request, user_pk=None):
+    def subscribe(self, request, pk=None):
         user = self.request.user
-        author = get_object_or_404(User, pk=user_pk)
+        author = get_object_or_404(User, id=pk)
         if request.method == 'POST':
             if user == author:
                 message = {'Нельзя подписаться на самого себя'}
