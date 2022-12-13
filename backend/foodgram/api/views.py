@@ -30,6 +30,7 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     pagination_class = CustomPageNumberPagination
     serializer_class = FollowSerializer
+    permission_classes=(IsAuthenticated,),
 
     @action(
         detail=False,
