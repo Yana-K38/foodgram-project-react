@@ -27,15 +27,15 @@ class RecipeFilter(rest_framework.FilterSet):
             'author', 'tags',
         )
 
-    def get_in_favorited(self, queriset, name, value):
+    def get_in_favorited(self, queryset, name, value):
         if value:
-            return queriset.filter(
+            return queryset.filter(
                 favorite_in__user=self.request.user
             )
-        return queriset.exclude(favorite_in__user=self.request.user)
+        return queryset.exclude(favorite_in__user=self.request.user)
 
-    def get_is_in_shopping_list(self, queriset, name, value):
+    def get_is_in_shopping_list(self, queryset, name, value):
         if value:
-            return queriset.filter(
+            return queryset.filter(
                 in_shopping_list__user=self.request.user
             )
