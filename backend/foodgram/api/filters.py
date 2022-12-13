@@ -32,11 +32,10 @@ class RecipeFilter(rest_framework.FilterSet):
             return Recipe.objects.filter(
                 favorite_in__user=self.request.user
             )
-        return Recipe.objects.all()
+        return Recipe.objects.exclude(favorite_in__user=self.request.user)
 
     def get_is_in_shopping_list(self, value):
         if value:
             return Recipe.objects.filter(
                 in_shopping_list__user=self.request.user
             )
-        return Recipe.objects.all()
