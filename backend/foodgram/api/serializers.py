@@ -208,14 +208,15 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
     def update(self, recipe, validated_data):
         tags = validated_data.pop('tags', None)
         ingredients = validated_data.pop('ingredients', None)
-        if ingredients:
+        if ingredients is not None:
             recipe.ingredients.clear()
             all_ingredients = [
                 AmountIngredient(
                     recipe=recipe,
                     ingredients=get_object_or_404(
                         Ingredient, id=ingredient['id']
-                    )
+                    ),
+                    amount=ingredient['amount']
                 )
                 for ingredient in ingredients
             ]
