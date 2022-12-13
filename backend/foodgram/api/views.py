@@ -103,7 +103,6 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        url_path='favorite',
     )
     def favorite(self, request, pk=None):
         """Добавляет/удаляет рецепт в Избранное."""
@@ -116,15 +115,11 @@ class RecipeViewSet(ModelViewSet):
                 message = {'Рецепт уже есть в избранном'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
             FavoriteRecipe.objects.create(user=user, recipe=recipe)
-            serializer = ShortRecipeSerializer()
-            return Response(
-                serializer.to_representation(instance=recipe)
+            serializer = ShortRecipeSerializer(
+                recipe, context={'request': request}
             )
-            # serializer = ShortRecipeSerializer(
-            #     recipe, context={'request': request}
-            # )
-            # return Response(
-            #     serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
             if not FavoriteRecipe.objects.filter(
