@@ -49,7 +49,7 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=True,
+        detail=False,
         methods=['post', 'delete'],
         serializer_class=FollowSerializer,
         permission_classes=(IsAuthenticated,),
