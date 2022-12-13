@@ -28,12 +28,11 @@ User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
-    permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPagination
     serializer_class = FollowSerializer
 
     @action(
-        detail=True,
+        detail=False,
         methods=['get'],
         permission_classes=(IsAuthenticated,),
         serializer_class=FollowSerializer,
@@ -53,6 +52,7 @@ class CustomUserViewSet(UserViewSet):
         detail=True,
         methods=['post', 'delete'],
         serializer_class=FollowSerializer,
+        permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, pk=None):
         user = self.request.user
