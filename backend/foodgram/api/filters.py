@@ -16,8 +16,8 @@ class RecipeFilter(rest_framework.FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all()
     )
-    in_favorited = BooleanFilter()
-    is_in_shopping_list = BooleanFilter()
+    in_favorited = BooleanFilter(method='get_in_favorited')
+    is_in_shopping_list = BooleanFilter(method='get_is_in_shopping_list')
 
     class Meta:
         model = Recipe
