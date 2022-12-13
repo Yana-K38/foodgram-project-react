@@ -61,7 +61,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           cd infra/
-          sudo docker-compose stop
+          sudo docker-compose down
           sudo docker rm backend
           sudo docker rm frontend
           sudo docker pull yanak38/frontend:latest
