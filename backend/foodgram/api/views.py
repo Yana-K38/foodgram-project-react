@@ -33,7 +33,7 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = FollowSerializer
 
     @action(
-        detail=False,
+        detail=True,
         methods=['get'],
         permission_classes=(IsAuthenticated,),
         serializer_class=FollowSerializer,
@@ -50,10 +50,9 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,
+        detail=True,
         methods=['post', 'delete'],
         serializer_class=FollowSerializer,
-        url_path="(?P<user_pk>[^/.])/subscribe",
     )
     def subscribe(self, request, pk=None):
         user = self.request.user
