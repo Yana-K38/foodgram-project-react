@@ -77,7 +77,7 @@ class FollowSerializer(UserSerializer):
             'recipes',
             'recipes_count'
         )
-        read_only_fields = ('email', 'username', 'first_name', 'last_name',)
+        read_only_fields = '__all__'
 
     def get_serializer_class(self):
         return ShortRecipeSerializer
@@ -99,7 +99,7 @@ class FollowSerializer(UserSerializer):
         return []
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj).count()
+        return obj.recipes.count()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -214,7 +214,7 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
                 AmountIngredient(
                     recipe=recipe,
                     ingredients=get_object_or_404(
-                        Ingredient, id=ingredient['id']
+                        Ingredient, pk=ingredient['id']
                     ),
                     amount=ingredient['amount']
                 )
