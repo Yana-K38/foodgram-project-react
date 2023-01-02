@@ -1,6 +1,5 @@
 name: Django-app workflow
 on: [push]
-
   
 jobs: 
   tests:
