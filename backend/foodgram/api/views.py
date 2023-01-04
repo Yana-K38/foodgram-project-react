@@ -28,6 +28,7 @@ User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
+    queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
     serializer_class = FollowSerializer
     permission_classes = (IsAuthenticated,),
