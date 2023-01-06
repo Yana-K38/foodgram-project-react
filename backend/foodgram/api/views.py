@@ -35,9 +35,9 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-      #  methods=['get'],
+        # methods=['get'],
         permission_classes=(IsAuthenticated,),
-       # url_path="subscriptions",
+        # url_path="subscriptions",
     )
     def subscriptions(self, request):
         user = request.user
@@ -108,7 +108,8 @@ class CustomUserViewSet(UserViewSet):
     #             Follow, author=author, user=user
     #         )
     #         subscription.delete()
-    #         return Response("Вы отписались", status=status.HTTP_204_NO_CONTENT)
+    #         return Response(
+    #             "Вы отписались", status=status.HTTP_204_NO_CONTENT)
     #     return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
