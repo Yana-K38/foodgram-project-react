@@ -22,7 +22,7 @@ from .permissions import AdminOrAuthor, AdminOrReadOnly
 from .serializers import (AmountIngredient, CreateUpdateRecipeSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
-                          TagSerializer)
+                          TagSerializer, UserSerializer)
 
 User = get_user_model()
 
@@ -30,15 +30,14 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
-    serializer_class = FollowSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,),
 
     @action(
         detail=False,
-        methods=['get'],
+      #  methods=['get'],
         permission_classes=(IsAuthenticated,),
-        serializer_class=FollowSerializer,
-        url_path="subscriptions",
+       # url_path="subscriptions",
     )
     def subscriptions(self, request):
         user = self.request.user
@@ -51,9 +50,8 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,
+        detail=True,
         methods=['post', 'delete'],
-        serializer_class=FollowSerializer,
         permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, pk=None):
