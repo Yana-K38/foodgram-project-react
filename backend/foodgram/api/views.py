@@ -31,12 +31,11 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated, ),
 
     @action(
         detail=False,
         # methods=['get'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
         # url_path="subscriptions",
     )
     def subscriptions(self, request):
@@ -61,7 +60,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
         user = request.user
@@ -123,13 +122,14 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.action in ('create', 'partial_update'):
-            return CreateUpdateRecipeSerializer
-        return RecipeSerializer
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        return CreateUpdateRecipeSerializer
 
     @action(
         detail=True,
         methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk=None):
         """Добавляет/удаляет рецепт в Избранное."""
@@ -166,6 +166,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk=None):
         """Добавляет/удаляет рецепт в Списке покупок."""
@@ -202,8 +203,7 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['get'],
-        permission_classes=[IsAuthenticated]
+        methods=['get']
     )
     def download_shopping_cart(self, request):
         """Загружает файл *.txt со списком покупок."""
