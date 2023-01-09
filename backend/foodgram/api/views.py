@@ -36,7 +36,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         # methods=['get'],
-        permission_classes=(IsAuthenticated,),
+        permission_classes=[IsAuthenticated]
         # url_path="subscriptions",
     )
     def subscriptions(self, request):
@@ -61,7 +61,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=(IsAuthenticated,),
+        permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id):
         user = request.user
@@ -203,7 +203,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
         """Загружает файл *.txt со списком покупок."""
