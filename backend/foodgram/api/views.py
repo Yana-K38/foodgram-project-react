@@ -31,7 +31,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,),
+    permission_classes = (IsAuthenticated, ),
 
     @action(
         detail=False,
@@ -117,9 +117,9 @@ class RecipeViewSet(ModelViewSet):
     """Для работы с рецептами."""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (AdminOrAuthor,)
+    permission_classes = (AdminOrAuthor, )
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -242,7 +242,7 @@ class TagViewSet(ReadOnlyModelViewSet):
     """Для работы с тегами."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (AdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly, )
     pagination_class = None
     http_method_names = ['get']
 
@@ -251,8 +251,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     """Для работы с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly, )
     pagination_class = None
-    filter_backends = (CustomIngredientsSearchFilter,)
+    filter_backends = (CustomIngredientsSearchFilter, )
     search_fields = ('^name', 'name')
     http_method_names = ['get']
