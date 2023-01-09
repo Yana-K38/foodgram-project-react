@@ -46,15 +46,16 @@ class CustomUserViewSet(UserViewSet):
     #         pages, many=True, context={'request': request}
     #     )
     #     return self.get_paginated_response(serializer.data)
-
     def subscriptions(self, request):
         user = self.request.user
         user_subscription = user.follower.all()
         author = [follower.author.id for follower in user_subscription]
         queryset = User.objects.filter(pk__in=author).order_by('id')
         paginated_queryset = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(paginated_queryset, many=True)
-
+        serializer = FollowSerializer(
+            paginated_queryset, many=True, context={'request': request}
+        )
+        # serializer = self.get_serializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(
@@ -65,7 +66,6 @@ class CustomUserViewSet(UserViewSet):
     # def subscribe(self, request, id):
     #     user = request.user
     #     author = get_object_or_404(User, pk=id)
-
     #     if request.method == 'POST':
     #         serializer = FollowSerializer(
     #             author, data=request.data, context={'request': request}
@@ -73,13 +73,11 @@ class CustomUserViewSet(UserViewSet):
     #         serializer.is_valid(raise_exception=True)
     #         Follow.objects.create(user=user, author=author)
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
     #     if request.method == 'DELETE':
     #         get_object_or_404(
     #             Follow, user=user, author=author
     #         ).delete()
     #         return Response(status=status.HTTP_204_NO_CONTENT)
-
     def subscribe(self, request, pk=None):
         user = self.request.user
         author = get_object_or_404(User, id=pk)
@@ -92,6 +90,10 @@ class CustomUserViewSet(UserViewSet):
             ).exists():
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            serializer = FollowSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
