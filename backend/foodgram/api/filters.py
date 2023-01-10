@@ -41,4 +41,4 @@ class RecipeFilter(rest_framework.FilterSet):
             return queryset.filter(
                 in_shopping_list__user=self.request.user
             )
-        return None
+        return []
