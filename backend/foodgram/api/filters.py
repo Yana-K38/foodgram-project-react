@@ -33,7 +33,7 @@ class RecipeFilter(rest_framework.FilterSet):
             return queryset.filter(
                 favorite_in__user=self.request.user
             )
-        return queryset
+        return queryset.exclude(favorite_in__user=self.request.user)
         # return Recipe.objects.exclude(favorite_in__user=self.request.user)
 
     def get_is_in_shopping_list(self, queryset, name, value):
