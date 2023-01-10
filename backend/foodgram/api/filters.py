@@ -1,5 +1,5 @@
 from django_filters import rest_framework
-from django_filters.rest_framework import (BooleanFilter,
+from django_filters.rest_framework import (NumberFilter,
                                            ModelMultipleChoiceFilter)
 from rest_framework import filters
 
@@ -16,27 +16,29 @@ class RecipeFilter(rest_framework.FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    in_favorited = BooleanFilter(method='get_in_favorited')
-    is_in_shopping_list = BooleanFilter(method='get_is_in_shopping_list')
+    is_favorited = NumberFilter(method='get_in_favorited')
+    is_in_shopping_list = NumberFilter(method='get_is_in_shopping_list')
     author = rest_framework.CharFilter(lookup_expr='exact')
 
     class Meta:
         model = Recipe
         fields = (
-            'in_favorited',
+            'is_favorited',
             'is_in_shopping_list',
             'author', 'tags',
         )
 
     def get_in_favorited(self, queryset, name, value):
-        if value:
-            return Recipe.objects.filter(
+        if value and self.request.user.is_authenticaticated:
+            return queryset.filter(
                 favorite_in__user=self.request.user
             )
-        return Recipe.objects.exclude(favorite_in__user=self.request.user)
+        return queryset
+        # return Recipe.objects.exclude(favorite_in__user=self.request.user)
 
     def get_is_in_shopping_list(self, queryset, name, value):
-        if value:
+        if value and self.request.user.is_authenticaticated:
             return queryset.filter(
                 in_shopping_list__user=self.request.user
             )
+        return None
