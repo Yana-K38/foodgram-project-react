@@ -79,6 +79,10 @@ DJOSER = {
         'current_user': 'api.serializers.UserSerializer',
         'user_create': 'api.serializers.CustomUserCreateSerializer',
     },
+    'PERMISSIONS': {
+        'user': 'djoser.permissions.CurrentUserOrAdminOrReadOnly',
+        'user_list': 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    },
 }
 
 
@@ -92,10 +96,9 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 100,
 
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+    'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    )
+    ]
 }
 
 # Database

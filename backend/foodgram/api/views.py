@@ -38,24 +38,13 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
         # url_path="subscriptions",
     )
-    # def subscriptions(self, request):
-    #     user = request.user
-    #     queryset = User.objects.filter(following__user=user)
-    #     pages = self.paginate_queryset(queryset)
-    #     serializer = FollowSerializer(
-    #         pages, many=True, context={'request': request}
-    #     )
-    #     return self.get_paginated_response(serializer.data)
     def subscriptions(self, request):
-        user = self.request.user
-        user_subscription = user.follower.all()
-        author = [follower.author.id for follower in user_subscription]
-        queryset = User.objects.filter(pk__in=author).order_by('id')
-        paginated_queryset = self.paginate_queryset(queryset)
+        user = request.user
+        queryset = User.objects.filter(following__user=user)
+        pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
-            paginated_queryset, many=True, context={'request': request}
+            pages, many=True, context={'request': request}
         )
-        # serializer = self.get_serializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
 
     @action(
