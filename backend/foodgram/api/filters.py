@@ -17,7 +17,6 @@ class RecipeFilter(rest_framework.FilterSet):
     )
     is_favorited = NumberFilter(method='get_in_favorited')
     is_in_shopping_list = NumberFilter(method='get_is_in_shopping_list')
-    author = rest_framework.CharFilter(lookup_expr='exact')
 
     class Meta:
         model = Recipe
@@ -40,4 +39,4 @@ class RecipeFilter(rest_framework.FilterSet):
             return queryset.filter(
                 in_shopping_list__user=self.request.user
             )
-        return []
+        return
