@@ -1,9 +1,8 @@
 from django_filters import rest_framework
-from django_filters.rest_framework import (NumberFilter,
-                                           ModelMultipleChoiceFilter)
-from rest_framework import filters
-
+from django_filters.rest_framework import (ModelMultipleChoiceFilter,
+                                           NumberFilter)
 from recipe.models import Recipe, Tag
+from rest_framework import filters
 
 
 class CustomIngredientsSearchFilter(filters.SearchFilter):

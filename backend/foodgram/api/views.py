@@ -6,23 +6,23 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.pagination import PageNumberPagination
-
-from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from user.models import Follow
 
 from .filters import CustomIngredientsSearchFilter, RecipeFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import AdminOrAuthor, AdminOrReadOnly
 from .serializers import (AmountIngredient, CreateUpdateRecipeSerializer,
-                          FollowSerializer, IngredientSerializer,
-                          RecipeSerializer, ShortRecipeSerializer,
-                          TagSerializer, UserSerializer)
+                          FavoriteSerializator, FollowSerializer,
+                          IngredientSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, TagSerializer,
+                          UserSerializer)
 
 User = get_user_model()
 
@@ -35,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         # methods=['get'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=[IsAuthenticated]
         # url_path="subscriptions",
     )
     # def subscriptions(self, request):
@@ -61,7 +61,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=[IsAuthenticated]
     )
     # def subscribe(self, request, id):
     #     user = request.user
@@ -135,6 +135,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def favorite(self, request, pk=None):
         """Добавляет/удаляет рецепт в Избранное."""
+        context = {'request': request}
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
@@ -143,10 +144,15 @@ class RecipeViewSet(ModelViewSet):
             ).exists():
                 message = {'Рецепт уже есть в избранном'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            FavoriteRecipe.objects.create(user=user, recipe=recipe)
-            serializer = ShortRecipeSerializer(
-                recipe, context={'request': request}
+            data = {
+                'user': request.user.id,
+                'recipe': recipe.id
+            }
+            serializer = FavoriteSerializator(
+                data=data, context=context
             )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED)
 
@@ -172,16 +178,20 @@ class RecipeViewSet(ModelViewSet):
     )
     def shopping_cart(self, request, pk=None):
         """Добавляет/удаляет рецепт в Списке покупок."""
+        context = {'request': request}
         user = self.request.user
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
             if ShoppingList.objects.filter(user=user, recipe=recipe).exists():
                 message = {'Рецепт уже в списке покупок'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            ShoppingList.objects.create(user=user, recipe=recipe)
-            serializer = ShortRecipeSerializer(
-                recipe, context={'request': request}
-            )
+            data = {
+                'user': request.user.id,
+                'recipe': recipe.id
+            }
+            serializer = ShoppingCartSerializer(data=data, context=context)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED)
 

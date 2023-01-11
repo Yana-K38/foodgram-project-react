@@ -1,7 +1,6 @@
 from csv import reader
 
 from django.core.management.base import BaseCommand
-
 from recipe.models import Ingredient
 
 

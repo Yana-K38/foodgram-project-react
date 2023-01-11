@@ -5,10 +5,9 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-
 from recipe.models import (AmountIngredient, FavoriteRecipe, Ingredient,
                            Recipe, ShoppingList, Tag)
+from rest_framework import serializers
 from user.models import Follow
 
 User = get_user_model()
@@ -239,3 +238,31 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
             context={'request': self.context.get('request')}
         ).data
         return data
+
+
+class FavoriteSerializator(serializers.ModelSerializer):
+    """Сериализатор для избранных рецептов. """
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = ('user', 'recipe', )
+
+    def to_representation(self, instance):
+        return ShortRecipeSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка покупок. """
+
+    class Meta:
+        model = ShoppingList
+        fields = ('user', 'recipe', )
+
+    def to_representation(self, instance):
+        return ShortRecipeSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
