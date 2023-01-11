@@ -34,9 +34,8 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        # methods=['get'],
+        methods=['get'],
         permission_classes=[IsAuthenticated],
-        # url_path="subscriptions",
     )
     def subscriptions(self, request):
         user = request.user
@@ -67,8 +66,8 @@ class CustomUserViewSet(UserViewSet):
     #             Follow, user=user, author=author
     #         ).delete()
     #         return Response(status=status.HTTP_204_NO_CONTENT)
-    def subscribe(self, request, pk=None):
-        user = self.request.user
+    def subscribe(self, request, pk):
+        user = request.user
         author = get_object_or_404(User, id=pk)
         if request.method == 'POST':
             if user == author:
@@ -88,12 +87,6 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            if not Follow.objects.filter(
-                author=author,
-                user=user
-            ).exists():
-                message = {'Вы не подписаны на этого автора'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
             subscription = get_object_or_404(
                 Follow, author=author, user=user
             )
@@ -106,7 +99,7 @@ class CustomUserViewSet(UserViewSet):
 class RecipeViewSet(ModelViewSet):
     """Для работы с рецептами."""
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (AdminOrAuthor, )
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend, )
