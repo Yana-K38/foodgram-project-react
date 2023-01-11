@@ -35,7 +35,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         # methods=['get'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
         # url_path="subscriptions",
     )
     def subscriptions(self, request):
@@ -50,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
     )
     # def subscribe(self, request, id):
     #     user = request.user
@@ -120,7 +120,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
     )
     def favorite(self, request, pk=None):
         """Добавляет/удаляет рецепт в Избранное."""
@@ -163,7 +163,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
     )
     def shopping_cart(self, request, pk=None):
         """Добавляет/удаляет рецепт в Списке покупок."""
@@ -204,7 +204,8 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        methods=['get']
+        methods=['get'],
+        permission_classes=[IsAuthenticated],
     )
     def download_shopping_cart(self, request):
         """Загружает файл *.txt со списком покупок."""
