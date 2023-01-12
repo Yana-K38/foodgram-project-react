@@ -9,7 +9,6 @@ from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -32,7 +31,7 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = CreateUpdateRecipeSerializer
     permission_classes = (AdminOrAuthor, )
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
