@@ -61,7 +61,8 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class FollowSerializer(UserSerializer):
-    recipes = serializers.SerializerMethodField()
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
+    # recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -81,14 +82,16 @@ class FollowSerializer(UserSerializer):
     def get_serializer_class(self):
         return ShortRecipeSerializer
 
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        recipes_limit = request.GET.get('request')
-        recipes = obj.recipes.all()
-        if recipes_limit:
-            recipes = recipes[:int(recipes_limit)]
-        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
-        return serializer.data
+    # def get_recipes(self, obj):
+        # request = self.context.get('request')
+        # recipes_limit = request.GET.get('request')
+        # recipes = obj.recipes.all()
+        # if recipes_limit:
+        #     recipes = recipes[:int(recipes_limit)]
+        # serializer = ShortRecipeSerializer(
+        #     recipes, many=True, read_only=True
+        # )
+        # return serializer.data
         # author = Recipe.objects.filter(author=obj)
         # if 'recipes_limit' in self.context.get('request').GET:
         #     recipes_limit = self.context.get('request').GET['recipes_limit']
