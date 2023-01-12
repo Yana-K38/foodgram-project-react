@@ -37,13 +37,13 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         methods=['get'],
-        # permission_classes=[IsAuthenticated],
+        permission_classes=[IsAuthenticated],
     )
     def subscriptions(self, request):
         user = self.request.user
         if user.is_anonymous:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        authors = user.subscribe.all()
+        authors = user.following.all()
         pages = self.paginate_queryset(authors)
         serializer = FollowSerializer(
             pages, many=True, context={'request': request}
