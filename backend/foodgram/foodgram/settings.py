@@ -80,8 +80,8 @@ DJOSER = {
         'user_create': 'api.serializers.CustomUserCreateSerializer',
     },
     'PERMISSIONS': {
-        'user': 'djoser.permissions.AllowAny',
-        'user_list': 'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'user': ['djoser.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
 }
 
