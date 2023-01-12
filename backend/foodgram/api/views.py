@@ -194,7 +194,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated, ),
         serializer_class=FollowSerializer
     )
     def subscriptions(self, request):   
