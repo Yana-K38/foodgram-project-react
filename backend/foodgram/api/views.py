@@ -10,7 +10,8 @@ from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from user.models import Follow
@@ -186,12 +187,13 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
-    permission_classes = (IsAuthenticated, ),
-    serializer_class = FollowSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     @action(
         detail=False,
         methods=['get'],
+        serializer_class=FollowSerializer,
+        permission_classes=(IsAuthenticated, )
     )
     def subscriptions(self, request):
         user = self.request.user
@@ -211,6 +213,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
+        serializer_class=FollowSerializer
     )
     def subscribe(self, request, user_pk=None):
         user = self.request.user
