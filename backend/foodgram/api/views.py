@@ -209,7 +209,7 @@ class CustomUserViewSet(UserViewSet):
         serializer_class=FollowSerializer
     )
     def subscribe(self, request, id=None):
-        user = self.request.user
+        user = request.user
         author = get_object_or_404(User, pk=id)
 
         if self.request.method == 'POST':
@@ -225,7 +225,7 @@ class CustomUserViewSet(UserViewSet):
 
             Follow.objects.create(user=user, author=author)
             serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
+                author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 

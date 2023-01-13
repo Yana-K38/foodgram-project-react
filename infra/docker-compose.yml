@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.7'
 services:
   db:
     image: postgres:13.0-alpine
@@ -17,7 +17,6 @@ services:
       - db
     env_file:
       - .env
-    #  - ./.env
 
   frontend:
     image: yanak38/frontend:latest
