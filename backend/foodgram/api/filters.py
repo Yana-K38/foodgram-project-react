@@ -42,9 +42,7 @@ class RecipeFilter(rest_framework.FilterSet):
             return Recipe.objects.none()
         favorites_recipe = FavoriteRecipe.objects.filter(
             user=self.request.user)
-        for val in favorites_recipe:
-            recipes = val.recipe.id
-        # recipes = [item.recipe.id for item in favorites]
+        recipes = [val.recipe.id for val in favorites_recipe]
         new_queryset = queryset.filter(id__in=recipes)
         if not strtobool(value):
             return queryset.difference(new_queryset)
@@ -54,9 +52,7 @@ class RecipeFilter(rest_framework.FilterSet):
         if self.request.user.is_anonymous:
             return Recipe.objects.none()
         shopping_cart = ShoppingList.objects.filter(user=self.request.user)
-        for val in shopping_cart:
-            recipes = val.recipe.id
-        # recipes = [item.recipe.id for item in shopping_cart]
+        recipes = [val.recipe.id for val in shopping_cart]
         new_queryset = queryset.filter(id__in=recipes)
         if not strtobool(value):
             return queryset.difference(new_queryset)
