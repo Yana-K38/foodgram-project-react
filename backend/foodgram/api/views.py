@@ -7,9 +7,10 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
-from rest_framework import status
+from rest_framework import exceptions, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from user.models import Follow
@@ -20,8 +21,7 @@ from .permissions import AdminOrAuthor, AdminOrReadOnly
 from .serializers import (AmountIngredient, CreateUpdateRecipeSerializer,
                           FavoriteSerializator, FollowSerializer,
                           IngredientSerializer, RecipeSerializer,
-                          ShoppingCartSerializer, TagSerializer,
-                          UserSerializer)
+                          ShoppingCartSerializer, TagSerializer)
 
 User = get_user_model()
 
@@ -184,62 +184,66 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class CustomUserViewSet(UserViewSet):
-    queryset = User.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPageNumberPagination
-    permission_classes = (IsAuthenticated, )
-    serializer_class = UserSerializer
 
     @action(
         detail=False,
-        methods=['get'],
-        serializer_class=FollowSerializer
+        methods=('get',),
+        serializer_class=FollowSerializer,
+        permission_classes=(IsAuthenticated, )
     )
     def subscriptions(self, request):
         user = self.request.user
-        if user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        user_follower = user.follower.all()
-        for follower in user_follower:
-            author = follower.author.id
-        queryset = User.objects.filter(
-            pk__in=author
-        )
-        serializer = self.get_serializer(
-            self.paginate_queryset(queryset), many=True
-        )
+        user_subscriptions = user.subscribes.all()
+        authors = [item.author.id for item in user_subscriptions]
+        queryset = User.objects.filter(pk__in=authors)
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+
         return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=('post', 'delete'),
         serializer_class=FollowSerializer
     )
-    def subscribe(self, request, user_pk=None):
+    def subscribe(self, request, id=None):
         user = self.request.user
-        author = get_object_or_404(User, pk=user_pk)
-        if request.method == 'POST':
+        author = get_object_or_404(User, pk=id)
+
+        if self.request.method == 'POST':
             if user == author:
-                message = {'Нельзя подписаться на самого себя'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                raise exceptions.ValidationError(
+                    'Подписка на самого себя запрещена.'
+                )
             if Follow.objects.filter(
-                author=author, user=user
+                user=user,
+                author=author
             ).exists():
-                message = {'Вы уже подписаны на этого автора'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
+                raise exceptions.ValidationError('Подписка уже оформлена.')
+
             Follow.objects.create(user=user, author=author)
+            serializer = self.get_serializer(author)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
+        if self.request.method == 'DELETE':
             if not Follow.objects.filter(
-                author=author, user=user
+                user=user,
+                author=author
             ).exists():
-                message = {'Вы не подписаны на этого автора'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            get_object_or_404(
-                Follow, user=user, author=author
-            ).delete()
-            return Response("Вы отписались", status=status.HTTP_204_NO_CONTENT)
+                raise exceptions.ValidationError(
+                    'Подписка не была оформлена, либо уже удалена.'
+                )
+
+            subscription = get_object_or_404(
+                Follow,
+                user=user,
+                author=author
+            )
+            subscription.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
