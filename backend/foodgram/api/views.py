@@ -224,8 +224,9 @@ class CustomUserViewSet(UserViewSet):
                 raise exceptions.ValidationError('Подписка уже оформлена.')
 
             Follow.objects.create(user=user, author=author)
-            serializer = self.get_serializer(author)
-
+            serializer = FollowSerializer(
+                author, data=request.data, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
