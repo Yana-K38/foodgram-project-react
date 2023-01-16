@@ -9,7 +9,8 @@ from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from user.models import Follow
@@ -221,12 +222,8 @@ class CustomUserViewSet(UserViewSet):
             ).exists():
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-            serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
+            serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
@@ -244,5 +241,4 @@ class CustomUserViewSet(UserViewSet):
             subscription.delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
