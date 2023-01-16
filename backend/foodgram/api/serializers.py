@@ -27,7 +27,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -41,11 +41,10 @@ class UserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
+        request = self.context.get('request')
+        if self.context.get('request').user.is_anonymous:
             return False
-        return Follow.objects.filter(user=user, author=obj).exists()
-
+        return obj.following.filter(user=request.user).exists()
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
