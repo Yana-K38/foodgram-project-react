@@ -183,14 +183,14 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class CustomUserViewSet(UserViewSet):
-    permission_classes = (IsAuthenticated, )
+    queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
 
     @action(
         detail=False,
         methods=['get'],
         serializer_class=FollowSerializer,
-        permission_classes=(IsAuthenticated, )
+        permission_classes=[IsAuthenticated],
     )
     def subscriptions(self, request):
         user = self.request.user
@@ -205,7 +205,8 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        serializer_class=FollowSerializer
+        serializer_class=FollowSerializer,
+        permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id=None):
         user = request.user
