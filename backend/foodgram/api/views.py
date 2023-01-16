@@ -221,9 +221,15 @@ class CustomUserViewSet(UserViewSet):
             ).exists():
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            serializer = FollowSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
-            serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Follow.objects.create(user=user, author=author)
+            # serializer = self.get_serializer(author)
+            # return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
             if not Follow.objects.filter(
