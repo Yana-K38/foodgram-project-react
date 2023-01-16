@@ -185,7 +185,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPageNumberPagination
-    permission_classes = [AdminOrAuthor],
 
     @action(
         detail=False,
