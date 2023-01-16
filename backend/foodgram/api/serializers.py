@@ -24,6 +24,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
+
 class UserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
