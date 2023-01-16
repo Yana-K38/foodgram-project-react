@@ -195,12 +195,18 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         user = self.request.user
-        user_subscriptions = user.subscribes.all()
-        authors = [item.author.id for item in user_subscriptions]
-        queryset = User.objects.filter(pk__in=authors)
-        paginated_queryset = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(paginated_queryset, many=True)
+        queryset = User.objects.filter(following__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            pages, many=True, context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
+        # user_subscriptions = user.subscribes.all()
+        # authors = [item.author.id for item in user_subscriptions]
+        # queryset = User.objects.filter(pk__in=authors)
+        # paginated_queryset = self.paginate_queryset(queryset)
+        # serializer = self.get_serializer(paginated_queryset, many=True)
+        # return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
@@ -223,7 +229,10 @@ class CustomUserViewSet(UserViewSet):
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = self.get_serializer(author)
+            serializer = FollowSerializer(
+                author, data=request.data, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
