@@ -199,7 +199,6 @@ class CustomUserViewSet(UserViewSet):
         queryset = User.objects.filter(pk__in=authors)
         paginated_queryset = self.paginate_queryset(queryset)
         serializer = self.get_serializer(paginated_queryset, many=True)
-
         return self.get_paginated_response(serializer.data)
 
     @action(
@@ -223,8 +222,8 @@ class CustomUserViewSet(UserViewSet):
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-            Follow.objects.create(user=user, author=author)
             serializer = self.get_serializer(author)
+            Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
