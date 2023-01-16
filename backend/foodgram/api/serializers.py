@@ -75,7 +75,6 @@ class FollowSerializer(UserSerializer):
             'recipes',
             'recipes_count'
         )
-        read_only_fields = '__all__'
 
     def get_serializer_class(self):
         return ShortRecipeSerializer
