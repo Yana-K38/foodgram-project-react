@@ -9,7 +9,6 @@ from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -226,9 +225,9 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, pk=id)
 
         if self.request.method == 'POST':
-            if author != request.user and (
-            not request.user.follower.filter(author=author).exists()
-        ):
+            if author != request.user and (not request.user.follower.filter(
+                                           author=author
+                                           ).exists()):
                 Follow.objects.create(
                     user=request.user,
                     author=author
