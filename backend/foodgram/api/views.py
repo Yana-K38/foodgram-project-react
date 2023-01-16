@@ -7,10 +7,9 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
-from rest_framework import exceptions, status
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from user.models import Follow
@@ -184,12 +183,12 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class CustomUserViewSet(UserViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated, )
     pagination_class = CustomPageNumberPagination
 
     @action(
         detail=False,
-        methods=('get',),
+        methods=['get'],
         serializer_class=FollowSerializer,
         permission_classes=(IsAuthenticated, )
     )
@@ -205,7 +204,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=('post', 'delete'),
+        methods=['post', 'delete'],
         serializer_class=FollowSerializer
     )
     def subscribe(self, request, id=None):
@@ -214,19 +213,17 @@ class CustomUserViewSet(UserViewSet):
 
         if self.request.method == 'POST':
             if user == author:
-                raise exceptions.ValidationError(
-                    'Подписка на самого себя запрещена.'
-                )
+                message = {'Нельзя подписаться на самого себя'}
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
             if Follow.objects.filter(
                 user=user,
                 author=author
             ).exists():
-                raise exceptions.ValidationError('Подписка уже оформлена.')
+                message = {'Вы уже подписаны на этого автора'}
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
             Follow.objects.create(user=user, author=author)
-            serializer = FollowSerializer(
-                author, context={'request': request}
-            )
+            serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
@@ -234,10 +231,8 @@ class CustomUserViewSet(UserViewSet):
                 user=user,
                 author=author
             ).exists():
-                raise exceptions.ValidationError(
-                    'Подписка не была оформлена, либо уже удалена.'
-                )
-
+                message = {'Вы не подписаны на этого автора'}
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
             subscription = get_object_or_404(
                 Follow,
                 user=user,

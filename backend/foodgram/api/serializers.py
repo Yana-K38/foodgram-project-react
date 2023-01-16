@@ -88,7 +88,7 @@ class FollowSerializer(UserSerializer):
             author_r = author_r[:int(recipes_limit)]
 
         if author_r:
-            serializer = self.get_serializer_class()(
+            serializer = self.get_serializer_class(
                 author_r,
                 context={'request': self.context.get('request')},
                 many=True
