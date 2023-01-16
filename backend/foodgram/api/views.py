@@ -185,7 +185,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPageNumberPagination
 
     @action(
         detail=False,
@@ -194,13 +194,20 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated],
     )
     def subscriptions(self, request):
-        user = self.request.user
-        queryset = User.objects.filter(following__user=user)
-        pages = self.paginate_queryset(queryset)
+        queryset = self.get_queryset().filter(
+            following__user=request.user
+        ).order_by('pk')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = FollowSerializer(
+                page, many=True, context={'request': request}
+            )
+            return self.get_paginated_response(serializer.data)
         serializer = FollowSerializer(
-            pages, many=True, context={'request': request}
+            queryset, many=True, context={'request': request}
         )
-        return self.get_paginated_response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        # user = self.request.user
         # user_subscriptions = user.subscribes.all()
         # authors = [item.author.id for item in user_subscriptions]
         # queryset = User.objects.filter(pk__in=authors)
@@ -219,22 +226,33 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, pk=id)
 
         if self.request.method == 'POST':
-            if user == author:
-                message = {'Нельзя подписаться на самого себя'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            if Follow.objects.filter(
-                user=user,
-                author=author
-            ).exists():
-                message = {'Вы уже подписаны на этого автора'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            if author != request.user and (
+            not request.user.follower.filter(author=author).exists()
+        ):
+                Follow.objects.create(
+                    user=request.user,
+                    author=author
+                )
+                serializer = FollowSerializer(
+                    author, context={'request': request}
+                )
+                return Response(serializer.data, status.HTTP_201_CREATED)
+            # if user == author:
+            #     message = {'Нельзя подписаться на самого себя'}
+            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            # if Follow.objects.filter(
+            #     user=user,
+            #     author=author
+            # ).exists():
+            #     message = {'Вы уже подписаны на этого автора'}
+            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # serializer = FollowSerializer(
+            #     author, data=request.data, context={'request': request}
+            # )
+            # serializer.is_valid(raise_exception=True)
+            # Follow.objects.create(user=user, author=author)
+            # return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
             if not Follow.objects.filter(
