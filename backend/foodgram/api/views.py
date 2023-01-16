@@ -193,8 +193,15 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
+        # user = request.user
+        # queryset = User.objects.filter(following__user=user)
+        # pages = self.paginate_queryset(queryset)
+        # serializer = FollowSerializer(
+        #     pages, many=True, context={'request': request}
+        # )
+        # return self.get_paginated_response(serializer.data)
         user = self.request.user
-        user_subscriptions = user.subscribes.all()
+        user_subscriptions = user.follower.all()
         authors = [item.author.id for item in user_subscriptions]
         queryset = User.objects.filter(pk__in=authors)
         paginated_queryset = self.paginate_queryset(queryset)
@@ -221,8 +228,10 @@ class CustomUserViewSet(UserViewSet):
             ).exists():
                 message = {'Вы уже подписаны на этого автора'}
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            serializer = FollowSerializer(
+                author, data=request.data, context={'request': request}
+            )
             Follow.objects.create(user=user, author=author)
-            serializer = self.get_serializer(author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
