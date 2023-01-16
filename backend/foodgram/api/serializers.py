@@ -23,8 +23,6 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
-        read_only_fields = '__all__',
-
 
 class UserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
