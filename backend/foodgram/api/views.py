@@ -208,7 +208,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id=None):
-        user = request.user.id
+        user = self.request.user
         author = get_object_or_404(User, pk=id)
 
         if self.request.method == 'POST':
