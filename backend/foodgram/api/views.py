@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
-from rest_framework import status
+from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -193,13 +193,6 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        # user = request.user
-        # queryset = User.objects.filter(following__user=user)
-        # pages = self.paginate_queryset(queryset)
-        # serializer = FollowSerializer(
-        #     pages, many=True, context={'request': request}
-        # )
-        # return self.get_paginated_response(serializer.data)
         user = self.request.user
         user_subscriptions = user.follower.all()
         authors = [item.author.id for item in user_subscriptions]
@@ -220,14 +213,23 @@ class CustomUserViewSet(UserViewSet):
 
         if self.request.method == 'POST':
             if user == author:
-                message = {'Нельзя подписаться на самого себя'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                raise exceptions.ValidationError(
+                    'Подписка на самого себя запрещена.'
+                )
             if Follow.objects.filter(
                 user=user,
                 author=author
             ).exists():
-                message = {'Вы уже подписаны на этого автора'}
-                return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                raise exceptions.ValidationError('Подписка уже оформлена.')
+            # if user.id == author.id:
+            #     message = {'Нельзя подписаться на самого себя'}
+            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            # if Follow.objects.filter(
+            #     user=user,
+            #     author=author
+            # ).exists():
+            #     message = {'Вы уже подписаны на этого автора'}
+            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
             serializer = FollowSerializer(
                 author, data=request.data, context={'request': request}
             )

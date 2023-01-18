@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'djoser',
-    # 'corsheaders',
     'api.apps.ApiConfig',
     'recipe.apps.RecipeConfig',
     'user.apps.UserConfig',
@@ -43,7 +42,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -51,7 +49,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS_ALLOWED_ORIGINS = ['http://localhost:3000', ]
 
 ROOT_URLCONF = 'foodgram.urls'
 
@@ -82,10 +79,6 @@ DJOSER = {
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
     },
-    # 'PERMISSIONS': {
-    #     'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-    #     'user_list': ['rest_framework.permissions.IsAuthenticated'],
-    # },
 }
 
 
