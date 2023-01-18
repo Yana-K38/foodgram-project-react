@@ -208,7 +208,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id=None):
-        user = request.user
+        user = request.user.id
         author = get_object_or_404(User, pk=id)
 
         if self.request.method == 'POST':
@@ -225,7 +225,7 @@ class CustomUserViewSet(UserViewSet):
                 author, data=request.data, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author).order_by('id')
+            Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
