@@ -12,6 +12,7 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name='follower')
 
     class Meta:
+        ordering = ('-id', )
         verbose_name = 'Subscription'
         verbose_name_plural = 'Subscriptions'
         constraints = [
