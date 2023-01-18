@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipe.models import FavoriteRecipe, Ingredient, Recipe, ShoppingList, Tag
-from rest_framework import exceptions, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -213,28 +213,19 @@ class CustomUserViewSet(UserViewSet):
 
         if self.request.method == 'POST':
             if user == author:
-                raise exceptions.ValidationError(
-                    'Подписка на самого себя запрещена.'
-                )
+                message = {'Нельзя подписаться на самого себя'}
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
             if Follow.objects.filter(
                 user=user,
                 author=author
             ).exists():
-                raise exceptions.ValidationError('Подписка уже оформлена.')
-            # if user.id == author.id:
-            #     message = {'Нельзя подписаться на самого себя'}
-            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            # if Follow.objects.filter(
-            #     user=user,
-            #     author=author
-            # ).exists():
-            #     message = {'Вы уже подписаны на этого автора'}
-            #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+                message = {'Вы уже подписаны на этого автора'}
+                return Response(message, status=status.HTTP_400_BAD_REQUEST)
             serializer = FollowSerializer(
                 author, data=request.data, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
+            Follow.objects.create(user=user, author=author).order_by('id')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
