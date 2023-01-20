@@ -1,8 +1,8 @@
 from distutils.util import strtobool
 
 from django_filters import rest_framework
+from django_filters.rest_framework import filters
 from recipe.models import FavoriteRecipe, Recipe, ShoppingList, Tag
-from rest_framework import filters
 
 CHOICES_VALUE = (
     ('0', 'False'),
@@ -14,7 +14,7 @@ class CustomIngredientsSearchFilter(filters.SearchFilter):
     search_param = 'name'
 
 
-class RecipeFilter(rest_framework.FilterSet):
+class RecipeFilter(filters.FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
