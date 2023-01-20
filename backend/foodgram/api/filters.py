@@ -15,10 +15,10 @@ class CustomIngredientsSearchFilter(filters.SearchFilter):
 
 
 class RecipeFilter(rest_framework.FilterSet):
-    tags = rest_framework.ModelMultipleChoiceFilter(
+    tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
-        queryset=Tag.objects.all()
+        queryset=Tag.objects.all(),
     )
     is_favorited = rest_framework.ChoiceFilter(
         choices=CHOICES_VALUE,
