@@ -1,8 +1,8 @@
 from distutils.util import strtobool
 
-from django_filters.rest_framework import filters, FilterSet
+from django_filters import rest_framework
 from recipe.models import FavoriteRecipe, Recipe, ShoppingList, Tag
-from rest_framework.filters import SearchFilter
+from rest_framework import filters
 
 CHOICES_VALUE = (
     ('0', 'False'),
@@ -10,25 +10,25 @@ CHOICES_VALUE = (
 )
 
 
-class CustomIngredientsSearchFilter(SearchFilter):
+class CustomIngredientsSearchFilter(filters.SearchFilter):
     search_param = 'name'
 
 
-class RecipeFilter(FilterSet):
-    tags = filters.ModelMultipleChoiceFilter(
+class RecipeFilter(rest_framework.FilterSet):
+    tags = rest_framework.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
-        queryset=Tag.objects.all(),
+        queryset=Tag.objects.all()
     )
-    is_favorited = filters.ChoiceFilter(
+    is_favorited = rest_framework.ChoiceFilter(
         choices=CHOICES_VALUE,
         method='get_is_favorited'
     )
-    is_in_shopping_cart = filters.ChoiceFilter(
+    is_in_shopping_cart = rest_framework.ChoiceFilter(
         choices=CHOICES_VALUE,
         method='get_is_in_shopping_cart'
     )
-    author = filters.NumberFilter(
+    author = rest_framework.NumberFilter(
         field_name='author',
         lookup_expr='exact'
     )
