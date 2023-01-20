@@ -1,6 +1,5 @@
 from distutils.util import strtobool
 
-from django_filters import rest_framework
 from django_filters.rest_framework import filters
 from recipe.models import FavoriteRecipe, Recipe, ShoppingList, Tag
 
@@ -20,15 +19,15 @@ class RecipeFilter(filters.FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    is_favorited = rest_framework.ChoiceFilter(
+    is_favorited = filters.ChoiceFilter(
         choices=CHOICES_VALUE,
         method='get_is_favorited'
     )
-    is_in_shopping_cart = rest_framework.ChoiceFilter(
+    is_in_shopping_cart = filters.ChoiceFilter(
         choices=CHOICES_VALUE,
         method='get_is_in_shopping_cart'
     )
-    author = rest_framework.NumberFilter(
+    author = filters.NumberFilter(
         field_name='author',
         lookup_expr='exact'
     )
