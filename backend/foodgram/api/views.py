@@ -244,7 +244,7 @@ class CustomUserViewSet(UserViewSet):
             Follow.objects.create(user=user, author=author)
             follows = User.objects.all().filter(username=author)
             serializer = FollowSerializer(
-                follows, data=request.data, context={'request': request}
+                follows, context={'request': request}, many=True,
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
