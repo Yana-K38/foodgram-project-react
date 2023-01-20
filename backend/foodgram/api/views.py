@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.db.models import Sum
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -208,10 +209,29 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id=None):
-        user = self.request.user
+        user = get_object_or_404(User, username=request.user.username)
         author = get_object_or_404(User, pk=id)
 
-        if self.request.method == 'POST':
+        if request.method == 'POST':
+            if user.id == author.id:
+                content = {'errors': 'Нельзя подписаться на себя'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                Follow.objects.create(user=user, author=author)
+            except IntegrityError:
+                content = {'errors': 'Вы уже подписаны на данного автора'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            follows = User.objects.all().filter(username=author)
+            serializer = FollowSerializer(
+                follows,
+                context={'request': request},
+                many=True,
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # user = self.request.user
+        # author = get_object_or_404(User, pk=id)
+
+        # if self.request.method == 'POST':
             # if user == author:
             #     message = {'Нельзя подписаться на самого себя'}
             #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
@@ -221,12 +241,12 @@ class CustomUserViewSet(UserViewSet):
             # ).exists():
             #     message = {'Вы уже подписаны на этого автора'}
             #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # serializer = FollowSerializer(
+            #     author, data=request.data, context={'request': request}
+            # )
+            # serializer.is_valid(raise_exception=True)
+            # Follow.objects.create(user=user, author=author)
+            # return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if self.request.method == 'DELETE':
             if not Follow.objects.filter(
