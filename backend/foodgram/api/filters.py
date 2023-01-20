@@ -2,7 +2,7 @@ from distutils.util import strtobool
 
 from django_filters import rest_framework
 from recipe.models import FavoriteRecipe, Recipe, ShoppingList, Tag
-from rest_framework import filters
+from rest_framework.filters import SearchFilter
 
 CHOICES_VALUE = (
     ('0', 'False'),
@@ -10,7 +10,7 @@ CHOICES_VALUE = (
 )
 
 
-class CustomIngredientsSearchFilter(filters.SearchFilter):
+class CustomIngredientsSearchFilter(SearchFilter):
     search_param = 'name'
 
 
